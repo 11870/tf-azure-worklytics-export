@@ -48,25 +48,20 @@ jobs:
           workload_identity_provider: ${{ env.GCP_IDENTITY_POOL }}
           service_account: ${{ env.CI_SA_EMAIL }}
 
-      # Azure auth...
-      - name: 'Azure login'
+
+      - id: auth_azure
+        name: 'Azure login'
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      # just a test; TODO remove
-      - name: 'Run Azure CLI commands'
-        run: |
-          az account show
-          az group list
-          pwd
 
       - id: terraform_apply
         name: 'Terraform - integration test examples/basic apply'
         working-directory: examples/basic
         run: |
-          RESOURCE_PREFIX=$(echo -n "${{ matrix.terraform_version }}_${{ env.timestamp}}" | sha1sum | cut -c1-12)
+          RESOURCE_PREFIX=ci-worklytics-$(echo -n "${{ matrix.terraform_version }}_${{ env.timestamp}}" | sha1sum | cut -c1-12)
           terraform init
           terraform apply -auto-approve \
             -var="resource_name_prefix=${RESOURCE_PREFIX}" \
@@ -74,9 +69,19 @@ jobs:
             -var="azure_tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
             -var="storage_account_name=dataexportfederation" \
             -var="resource_group_name=worklytics-david"
-          echo "worklytics_export_container=$(terraform output -raw worklytics_export_container)" >> $GITHUB_ENV
+
+      - id: terraform_integration
+        name: 'Terraform - integration test examples/basic upload blob'
+        uses: azure/CLI@v1
+        run: |
+          ./test/upload-blob.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} \
+            ${{ secrets.AZURE_TENANT_ID }} ${{ secrets.AZURE_CLIENT_ID }} ${{ secrets.AZURE SUBSCRIPTION_ID }} \
+            ${{ env.GITHUB_TOKEN }} "worklytics-david" "dataexportfederation" \
+            ${{steps.terraform_apply.outputs.worklytics_export_container}}
 
       - id: terraform_destroy
         name: 'Terraform - integration test examples/basic destroy'
+        if: always() # try to force this to ALWAYS happen, no matter if previous stuff failed
+        working-directory: examples/basic
         run: |
           terraform destroy -auto-approve
