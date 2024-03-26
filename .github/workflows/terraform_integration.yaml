@@ -77,7 +77,7 @@ jobs:
           inlineScript: |
             chmod +x ./test/upload-blob.sh
             ./test/upload-blob.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} \
-              ${{ secrets.AZURE_TENANT_ID }} ${{ secrets.AZURE_CLIENT_ID }} ${{ secrets.AZURE SUBSCRIPTION_ID }} \
+              ${{ secrets.AZURE_TENANT_ID }} ${{ secrets.AZURE_CLIENT_ID }} ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
               ${{ env.GITHUB_TOKEN }} "worklytics-david" "dataexportfederation" \
               ${{steps.terraform_apply.outputs.worklytics_export_container}}
 
