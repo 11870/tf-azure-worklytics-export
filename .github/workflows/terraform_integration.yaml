@@ -11,6 +11,7 @@ jobs:
   tf_integration:
     name: 'Terraform integration (on tf ${{ matrix.terraform_version }})'
     runs-on: ubuntu-latest
+    environment: integration
     strategy:
       matrix:
         # TODO run just one version by now
