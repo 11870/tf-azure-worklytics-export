@@ -50,5 +50,6 @@ jobs:
       # grant CI_SA permissions to impersonate in EXAMPLE_TENANT_SA
       - name: 'GCP test workload auth'
         run: |
-          gcloud auth print-identity-token --impersonate-service-account ${{ env.EXAMPLE_TENANT_SA_EMAIL }} >> $GITHUB_OUTPUT
+          ID_TOKEN=`gcloud auth print-identity-token --impersonate-service-account ${{ env.EXAMPLE_TENANT_SA_EMAIL }}`
+          echo $ID_TOKEN >> $GITHUB_OUTPUT
 
