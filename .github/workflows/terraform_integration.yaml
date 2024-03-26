@@ -52,8 +52,8 @@ jobs:
         run: |
           ID_TOKEN=`gcloud auth print-identity-token --impersonate-service-account ${{ env.EXAMPLE_TENANT_SA_EMAIL }}`
           {
-            echo 'ID_TOKEN=<<EOF'
-            echo $ID_TOKEN
-            echo EOF
-          } >> $GITHUB_ENV
+              echo 'JSON_RESPONSE<<EOF'
+              curl https://example.com
+              echo EOF
+          } >> "$GITHUB_ENV"
 
