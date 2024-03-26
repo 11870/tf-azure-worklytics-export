@@ -72,7 +72,7 @@ jobs:
             -var="resource_name_prefix=${RESOURCE_PREFIX}" \
             -var="worklytics_tenant_id=${EXAMPLE_TENANT_SA_ID}" \
             -var="azure_tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
-            -var="azure_storage_account_name=dataexportfederation" \
+            -var="storage_account_name=dataexportfederation" \
             -var="resource_group_name=worklytics-david"
           echo "worklytics_export_container=$(terraform output -raw worklytics_export_container)" >> $GITHUB_ENV
 
