@@ -47,13 +47,16 @@ jobs:
           workload_identity_provider: ${{ env.GCP_IDENTITY_POOL }}
           service_account: ${{ env.CI_SA_EMAIL }}
 
-      # grant CI_SA permissions to impersonate in EXAMPLE_TENANT_SA
-      - name: 'GCP test workload auth'
-        run: |
-          ID_TOKEN=`gcloud auth print-identity-token --impersonate-service-account ${{ env.EXAMPLE_TENANT_SA_EMAIL }}`
-          {
-              echo 'JSON_RESPONSE<<EOF'
-              curl "https://oauth2.googleapis.com/tokeninfo?id_token=$ID_TOKEN"
-              echo EOF
-          } >> "$GITHUB_ENV"
+      # Azure auth...
+      - name: 'Azure login'
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: 'Run Azure CLI commands'
+        run: |
+          az account show
+          az group list
+          pwd
