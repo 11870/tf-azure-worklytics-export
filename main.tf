@@ -68,7 +68,8 @@ resource "azuread_application" "worklytics" {
     gallery    = false
   }
 
-  owners = var.owners
+  # TODO test while using GH actions
+  # owners = var.owners
 }
 
 # SP associated to the application (for authorization and role assignments)

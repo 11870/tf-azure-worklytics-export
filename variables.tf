@@ -20,6 +20,7 @@ variable "azure_tenant_id" {
   description = "The Azure tenant ID where the application will be created"
 }
 
+# TODO should prefix with azure?
 variable "storage_account_name" {
   type        = string
   description = "The name of the storage account where the container will be created"
@@ -29,7 +30,7 @@ variable "resource_group_name" {
   type        = string
   description = "The name of the resource group where the storage account is located"
 }
-
+# TODO should prefix with azure?
 variable "owners" {
   type        = set(string)
   description = "List of object ids to be set as owner of the application"
