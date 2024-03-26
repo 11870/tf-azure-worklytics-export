@@ -51,5 +51,9 @@ jobs:
       - name: 'GCP test workload auth'
         run: |
           ID_TOKEN=`gcloud auth print-identity-token --impersonate-service-account ${{ env.EXAMPLE_TENANT_SA_EMAIL }}`
-          echo $ID_TOKEN >> $GITHUB_OUTPUT
+          {
+            echo "ID_TOKEN=<<EOF'
+            echo $ID_TOKEN
+            echo EOF
+          } >> $GITHUB_END
 
