@@ -55,5 +55,5 @@ jobs:
             echo 'ID_TOKEN=<<EOF'
             echo $ID_TOKEN
             echo EOF
-          } >> $GITHUB_END
+          } >> $GITHUB_ENV
 
