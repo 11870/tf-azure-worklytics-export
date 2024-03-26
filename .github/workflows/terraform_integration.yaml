@@ -41,7 +41,7 @@ jobs:
           terraform_version: ${{ matrix.terraform_version }}
           terraform_wrapper: false
 
-      - id: 'auth-gcp'
+      - id: auth_gcp
         name: 'Authenticate to Google Cloud'
         uses: google-github-actions/auth@v2
         with:
@@ -55,9 +55,28 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
+      # just a test; TODO remove
       - name: 'Run Azure CLI commands'
         run: |
           az account show
           az group list
           pwd
+
+      - id: terraform_apply
+        name: 'Terraform - integration test examples/basic apply'
+        working-directory: examples/basic
+        run: |
+          RESOURCE_PREFIX=$(echo -n "${{ matrix.terraform_version }}_${{ env.timestamp}}" | sha1sum | cut -c1-12)
+          terraform init
+          terraform apply -auto-approve \
+            -var="resource_name_prefix=${RESOURCE_PREFIX}" \
+            -var="worklytics_tenant_id=${EXAMPLE_TENANT_SA_ID}" \
+            -var="azure_tenant_id=${ secrets.AZURE_TENANT_ID }" \
+            -var="azure_storage_account_name=dataexportfederation" \
+            -var="resource_group_name=worklytics-david"
+          echo "worklytics_export_container=$(terraform output -raw worklytics_export_container)" >> $GITHUB_ENV
+
+      - id: terraform_destroy
+        name: 'Terraform - integration test examples/basic destroy'
+        run: |
+          terraform destroy -auto-approve
