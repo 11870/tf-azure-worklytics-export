@@ -78,7 +78,7 @@ jobs:
             -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}" \
             -var="azure_tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
             -var="storage_account_name=${{ env.AZURE_STORAGE_ACCOUNT }}" \
-            -var="resource_group_name=${{ env.AZURE_RESOURCE_GROUP }}
+            -var="resource_group_name=${{ env.AZURE_RESOURCE_GROUP }}"
 
       - id: terraform_integration
         name: 'Terraform - integration test examples/basic upload blob'
