@@ -26,6 +26,8 @@ jobs:
       EXAMPLE_TENANT_SA_EMAIL: ci-terraform-github-azure@psoxy-dev-david.iam.gserviceaccount.com
       EXAMPLE_TENANT_SA_ID: '116863361842113328137'
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      AZURE_STORAGE_ACCOUNT: 'dataexportfederation'
+      AZURE_RESOURCE_GROUP: 'worklytics-david'
     steps:
       - name: Get timestamp
         id: timestamp
@@ -73,19 +75,22 @@ jobs:
           terraform init
           terraform apply -auto-approve \
             -var="resource_name_prefix=${RESOURCE_PREFIX}" \
-            -var="worklytics_tenant_id=${EXAMPLE_TENANT_SA_ID}" \
+            -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}" \
             -var="azure_tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
-            -var="storage_account_name=dataexportfederation" \
-            -var="resource_group_name=worklytics-david"
+            -var="storage_account_name=${{ env.AZURE_STORAGE_ACCOUNT }}" \
+            -var="resource_group_name=${{ env.AZURE_RESOURCE_GROUP }}
 
       - id: terraform_integration
         name: 'Terraform - integration test examples/basic upload blob'
         run: |
           chmod +x $GITHUB_WORKSPACE/test/upload-blob.sh
           $GITHUB_WORKSPACE/test/upload-blob.sh ${{ env.EXAMPLE_TENANT_SA_EMAIL }} \
-            ${{ secrets.AZURE_TENANT_ID }} ${{ secrets.AZURE_CLIENT_ID }} ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
-            "worklytics-david" "dataexportfederation" \
-            ${{steps.terraform_apply.outputs.worklytics_export_container}}
+            ${{ secrets.AZURE_TENANT_ID }} \
+            ${{ secrets.AZURE_CLIENT_ID }} \
+            ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
+            ${{ env.AZURE_RESOURCE_GROUP }} \
+            ${{ env.AZURE_STORAGE_ACCOUNT }} \
+            ${{ steps.terraform_apply.outputs.worklytics_export_container }}
 
       - id: terraform_destroy
         name: 'Terraform - integration test examples/basic destroy'
@@ -94,7 +99,7 @@ jobs:
         run: |
           terraform destroy -auto-approve \
             -var="resource_name_prefix=${RESOURCE_PREFIX}" \
-            -var="worklytics_tenant_id=${EXAMPLE_TENANT_SA_ID}" \
+            -var="worklytics_tenant_id=${{ env.EXAMPLE_TENANT_SA_ID }}" \
             -var="azure_tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
-            -var="storage_account_name=dataexportfederation" \
-            -var="resource_group_name=worklytics-david"
+            -var="storage_account_name=${{ env.AZURE_STORAGE_ACCOUNT }}" \
+            -var="resource_group_name=${{ env.AZURE_RESOURCE_GROUP }}"
