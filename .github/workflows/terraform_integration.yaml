@@ -55,14 +55,14 @@ jobs:
           version: '>= 363.0.0'
 
       - id: auth_azure
-        name: 'Azure login'
+        name: 'Azure login: for GitHub Action itself to run Terraform'
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: 'Install Azure CLI, for upload-blob.sh script'
+      - name: 'Install Azure CLI: for upload-blob.sh script (login using federated identity)'
         uses: elstudio/action-install-azure-cli@v1
 
       - id: terraform_apply
@@ -77,8 +77,8 @@ jobs:
             -var="azure_tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
             -var="storage_account_name=${{ env.AZURE_STORAGE_ACCOUNT }}" \
             -var="resource_group_name=${{ env.AZURE_RESOURCE_GROUP }}"
-          echo "worklytics_export_app_client_id=$(terraform output worklytics_export_app_client_id)" >> $GITHUB_OUTPUT
-          echo "worklytics_export_container=$(terraform output worklytics_export_container)" >> $GITHUB_OUTPUT
+          echo "worklytics_export_app_client_id=$(terraform output -raw worklytics_export_app_client_id)" >> $GITHUB_OUTPUT
+          echo "worklytics_export_container=$(terraform output -raw worklytics_export_container)" >> $GITHUB_OUTPUT
 
       - id: terraform_integration
         name: 'Terraform - integration test examples/basic upload blob'
