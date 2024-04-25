@@ -77,8 +77,8 @@ jobs:
             -var="azure_tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
             -var="storage_account_name=${{ env.AZURE_STORAGE_ACCOUNT }}" \
             -var="resource_group_name=${{ env.AZURE_RESOURCE_GROUP }}"
-          echo "worklytics_export_app_client_id=$(terraform output worklytics_export_app_client_id)" >> $GITHUB_OUPUT
-          echo "worklytics_export_container=$(terraform output worklytics_export_container)" >> $GITHUB_OUPUT
+          echo "worklytics_export_app_client_id=$(terraform output worklytics_export_app_client_id)" >> $GITHUB_OUTPUT
+          echo "worklytics_export_container=$(terraform output worklytics_export_container)" >> $GITHUB_OUTPUT
 
       - id: terraform_integration
         name: 'Terraform - integration test examples/basic upload blob'
