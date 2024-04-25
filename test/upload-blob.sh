@@ -13,14 +13,14 @@ CONTAINER_NAME=$7
 TEST_RUN_DATE=`date +"%Y-%m-%dT%H:%M:%SZ"`
 
 # get federated token
-GPT_TOKEN=`gcloud auth print-identity-token --impersonate-service-account=${EXAMPLE_TENANT_SA_MAIL} --audiences=api://AzureADTokenExchange`
-echo ${GPT_TOKEN}
+GCP_TOKEN=`gcloud auth print-identity-token --impersonate-service-account=${EXAMPLE_TENANT_SA_MAIL} --audiences=api://AzureADTokenExchange`
+echo ${GCP_TOKEN}
 
 # login with federated credential token: notice the `--allow-no-subscriptions` flag
 az login --service-principal \
  -t ${TENANT_ID} \
  -u ${CLIENT_ID} \
- --federated-token ${GPT_TOKEN} \
+ --federated-token ${GCP_TOKEN} \
  --allow-no-subscriptions \
 # now, set the subscription to be able to access storage resources: the Azure Entra ID App
 # does not have access to the subscription by default
