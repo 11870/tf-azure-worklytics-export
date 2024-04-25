@@ -24,7 +24,7 @@ jobs:
       CI_SA_EMAIL: gh-actions-tf-azure-export@psoxy-dev-david.iam.gserviceaccount.com
       GCP_IDENTITY_POOL: 'projects/553087959349/locations/global/workloadIdentityPools/github/providers/tf-azure-worklytics-export'
       EXAMPLE_TENANT_SA_EMAIL: ci-terraform-github-azure@psoxy-dev-david.iam.gserviceaccount.com
-      EXAMPLE_TENANT_SA_ID: '116863361842113328137'
+      EXAMPLE_TENANT_SA_ID: '102729429397327893469'
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       AZURE_STORAGE_ACCOUNT: 'dataexportfederation'
       AZURE_RESOURCE_GROUP: 'worklytics-david'
