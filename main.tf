@@ -88,15 +88,21 @@ resource "azuread_application_federated_identity_credential" "worklytics" {
 }
 
 # Assign roles to the application for writing and reading contents of the storage container
+# Container level ACCESS
 resource "azurerm_role_assignment" "role_contributor" {
   scope                = azurerm_storage_container.worklytics.resource_manager_id
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azuread_service_principal.worklytics.id
 }
 
+data "azurerm_storage_account" "tenant_storage_account" {
+  name                = var.storage_account_name
+  resource_group_name = var.resource_group_name
+}
+
 # Role for the synchronization script: User Delegation Key via Azure SDK
 resource "azurerm_role_assignment" "role_delegator" {
-  scope                = azurerm_storage_container.worklytics.resource_manager_id
+  scope                = data.azurerm_storage_account.tenant_storage_account.id # storage account level ACCESS / azurerm_storage_container.worklytics.resource_manager_id
   role_definition_name = "Storage Blob Delegator"
   principal_id         = azuread_service_principal.worklytics.id
 }
