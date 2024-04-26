@@ -52,7 +52,7 @@ EOT
 # Create a storage container (https://<account>.blob.core.windows.net/<container>)
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_container
 resource "azurerm_storage_container" "worklytics" {
-  name                  = "${var.resource_name_prefix}container"
+  name                  = "${var.resource_name_prefix}export-container"
   storage_account_name  = var.storage_account_name
   container_access_type = "private"
 }
@@ -60,7 +60,7 @@ resource "azurerm_storage_container" "worklytics" {
 # Create Azure AD application: storage container access via federated identity
 # https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/application
 resource "azuread_application" "worklytics" {
-  display_name = "${var.resource_name_prefix}app"
+  display_name = "${var.resource_name_prefix}export-connector"
 
   feature_tags {
     hide       = true
@@ -68,8 +68,7 @@ resource "azuread_application" "worklytics" {
     gallery    = false
   }
 
-  # TODO test while using GH actions
-  # owners = var.owners
+  owners = var.owners
 }
 
 # SP associated to the application (for authorization and role assignments)
@@ -80,7 +79,7 @@ resource "azuread_service_principal" "worklytics" {
 # Create Azure AD federated identity
 resource "azuread_application_federated_identity_credential" "worklytics" {
   application_id = azuread_application.worklytics.id
-  display_name   = "${var.resource_name_prefix}federated-identity"
+  display_name   = "${var.resource_name_prefix}export-federated-identity"
   description    = var.federated_identity_description
   audiences      = [local.federated_identity_audience]
   issuer         = var.federated_identity_issuer
@@ -88,21 +87,23 @@ resource "azuread_application_federated_identity_credential" "worklytics" {
 }
 
 # Assign roles to the application for writing and reading contents of the storage container
-# Container level ACCESS
 resource "azurerm_role_assignment" "role_contributor" {
   scope                = azurerm_storage_container.worklytics.resource_manager_id
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azuread_service_principal.worklytics.id
 }
 
-data "azurerm_storage_account" "tenant_storage_account" {
+# Role for the data synchronization script: it uses a SAS token obtained via user delegation key.
+# Because the `Get User Delegation Key` operation acts at the level of the storage account, we
+# first need to fetch its ID.
+# https://learn.microsoft.com/en-us/rest/api/storageservices/get-user-delegation-key#permissions
+data "azurerm_storage_account" "for_worklytics_data_export" {
   name                = var.storage_account_name
   resource_group_name = var.resource_group_name
 }
 
-# Role for the synchronization script: User Delegation Key via Azure SDK
 resource "azurerm_role_assignment" "role_delegator" {
-  scope                = data.azurerm_storage_account.tenant_storage_account.id # storage account level ACCESS / azurerm_storage_container.worklytics.resource_manager_id
+  scope                = data.azurerm_storage_account.for_worklytics_data_export.id
   role_definition_name = "Storage Blob Delegator"
   principal_id         = azuread_service_principal.worklytics.id
 }
@@ -110,7 +111,7 @@ resource "azurerm_role_assignment" "role_delegator" {
 resource "local_file" "todo" {
   count = var.todos_as_local_files ? 1 : 0
 
-  filename = "TODO - configure export in worklytics.md"
+  filename = "TODO - configure export in Worklytics.md"
 
   content = local.todo_content
 }
